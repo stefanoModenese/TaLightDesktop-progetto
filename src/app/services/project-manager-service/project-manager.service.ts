@@ -12,6 +12,7 @@ export class ProjectManagerService {
   
   public onProjectChanged = new EventEmitter<ProjectEnvironment>();
   public onProjectListChanged = new EventEmitter<void>();
+  public onLabelChanged = new EventEmitter<string>();
 
   constructor(){}
 
@@ -29,6 +30,11 @@ export class ProjectManagerService {
     console.log("ProjectManagerService:setCurrentProject:sent")
   }
 
+  public setLabel(name:string) {
+    //this.onProjectChanged.emit();
+    this.onLabelChanged.emit(name);
+  }
+
   public getCurrentProject(){
     return this.currentProject;
   }
@@ -42,6 +48,10 @@ export class ProjectManagerService {
       this.projects.push(project)
       this.onProjectListChanged.emit();
     }
+  }
+
+  public labelProject(name:string) {
+    this.onProjectChanged.emit();
   }
 
   public openProject(project:ProjectEnvironment){

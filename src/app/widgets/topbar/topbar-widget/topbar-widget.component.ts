@@ -4,6 +4,8 @@ import { ApiService, ApiState } from 'src/app/services/api-service/api.service';
 import { NotificationManagerService, NotificationMessage, NotificationType } from 'src/app/services/notification-mananger-service/notification-manager.service';
 import { ProblemManagerService } from 'src/app/services/problem-manager-service/problem-manager.service';
 import { AppTheme, ThemeService } from 'src/app/services/theme-service/theme.service';
+import { ProjectManagerService } from 'src/app/services/project-manager-service/project-manager.service';
+import { Output, EventEmitter } from '@angular/core';
 
 
 @Component({
@@ -16,9 +18,8 @@ export class TopbarWidgetComponent implements OnInit {
   @ViewChild("urlInput") public urlInput?: AutoComplete;
   @ViewChild("statusDot") public statusDot?: ElementRef;
   @ViewChild("messageBox") public messageBox?: ElementRef;
-  
-  
-  
+  @Output() newEventItem = new EventEmitter<string>;
+  @ViewChild("myLabel") public myLabel?: ElementRef;
   
 
   url;
@@ -29,23 +30,53 @@ export class TopbarWidgetComponent implements OnInit {
   subApiState
   subProblemError
   subOnNotify
+  subOnLabel
   currentNotification?:NotificationMessage
+  label:string = '';
 
   constructor( public readonly themeService: ThemeService, 
                public api: ApiService,
                public zone: NgZone,
                public pm: ProblemManagerService,
-               public nm: NotificationManagerService
+               public nm: NotificationManagerService,
+               public pj: ProjectManagerService
              ) {
     this.url = api.url;
     this.lastUrl=this.url+"";
+    //this.lastUrl = this.getLastInsertedUrl();
     this.urlCache = [...this.api.urlCache]
     this.subApiState = this.api.onApiStateChange.subscribe((state:ApiState)=>{this.updateState(state)})
     this.subProblemError = this.pm.onError.subscribe((_)=>{this.stateBad()})
     this.subOnNotify = this.nm.onNotification.subscribe((msg:NotificationMessage): void=>{this.showNotification(msg)})
+    //this.pj.onProjectChanged.subscribe((name) => {});
+    this.subOnLabel = this.pj.onLabelChanged.subscribe((nome)=>{this.label = nome});
+
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.pj.onLabelChanged.subscribe((nome) => {
+      //this.label = nome;
+      var L = this.myLabel?.nativeElement as HTMLElement
+      L.innerHTML = nome;
+    })
+    this.lastUrl = this.api.getLastInsertedUrl();
+    let ciao = "l'ultimo inserito è: " + this.lastUrl;
+    alert(ciao);
+    this.url = this.lastUrl;
+    if (this.urlInput) {
+      this.urlInput.writeValue(this.url);
+    }
+  }
+
+  ngAfterViewInit(): void {
+    /*if (this.urlInput) {
+      this.urlInput.ngModel = this.url;
+    }*/
+  }
+
+  /*public getLastInsertedUrl(): string {
+    return this.api.getLastInsertedUrl();
+  }*/
 
   public get changeThemIcon(): string {
     return this.themeService.currentTheme == AppTheme.dark ? 'pi-sun' : 'pi-moon';
@@ -149,6 +180,19 @@ export class TopbarWidgetComponent implements OnInit {
 
     console.log("changeURL:urlCache:after:",this.urlCache)
     console.log("changeURL:url:",url)
+  }
+
+  public onClick(nome:string) {
+    //this.label = nome;
+    //alert('grazie per aver cliccato');
+    const fakeProject = {};
+    //this.pj.setCurrentProject(nome);
+    this.pj.setLabel(nome);
+    //this.projectservice.setCurrentProject(nome);
+  }
+
+  addNewItem(value:string) {
+    this.newEventItem.emit(value);
   }
   
 }
