@@ -63,13 +63,13 @@ export class ApiService {
   public setUrl(value: string): boolean {
     let url;
     console.log("setUrl")
-    alert('sto settandoo!');
-    try{ url = new URL(value); alert(url) }catch(_){ return false; }
+    //alert('sto settandoo!');
+    try{ url = new URL(value);} catch(_){ return false; }
     if(!( url.protocol == 'ws:' || url.protocol == 'wss:' )){ return false; }
     console.log("setUrl:valid!")
     this.resetAllConnections()
     this._url = url.href
-    alert(this._url);
+    //alert(this._url);
     console.log("setUrl:href:",url.href)
     this.addToCache(this._url)
     this.urlCache.push(value);

@@ -19,7 +19,6 @@ export class ServiceMenuEntry {
   ){}
 }
 
-
 export class ProblemMenuEntry {
   constructor(
     public name = "",
@@ -77,6 +76,19 @@ export class ProblemWidgetComponent {
   }
   
   ngOnInit() {
+    // Recupera l'ultimo progetto e servizio selezionati da localStorage
+    const lastSelectedProblemKey = localStorage.getItem('lastSelectedProblemKey');
+    let stringa = 'ho recuperato il problema: ' + lastSelectedProblemKey;
+    alert(stringa);
+    const lastSelectedServiceKey = localStorage.getItem('lastSelectedServiceKey');
+    let stringa2 = 'ho recuperato il servizio: ' + lastSelectedServiceKey;
+    alert(stringa2);
+
+    // Imposta i valori iniziali
+    //this.selectedProblem = this.problemsMenu.find(problem => problem.name === lastSelectedProblemKey);
+    let str = "ultimo problema è: " + this.selectedProblem?.name;
+    alert(str);
+    //this.selectedService = lastSelectedService || '';
     this.reloadProblemList();
   }
 
@@ -272,6 +284,7 @@ export class ProblemWidgetComponent {
 
     if(clear) return
     
+    alert("lista di problemi cambiati! La creo...");
     let problemsMenu = new Array<ProblemDescriptor>(); // [...this.pm.problemList] // ez ?
     this.pm.problemList.forEach((problemDesc)=>{      
       problemsMenu.push(problemDesc)
@@ -283,7 +296,9 @@ export class ProblemWidgetComponent {
     this.loading = false
 
     this.onProblemListChanged.emit();
-
+    alert("ora la lista di problemi dovrebbe esserci...");
+    const lastSelectedProblemKey = localStorage.getItem('lastSelectedProblemKey');
+    this.selectedProblem = this.problemsMenu.find(problem => problem.key === lastSelectedProblemKey);
   }
 
 
@@ -300,7 +315,9 @@ export class ProblemWidgetComponent {
     
     console.log('didSelectProblem:', this.selectedProblem)
     if (!this.selectedProblem){return}
-    this.pm.selectProblem(this.selectedProblem)
+    this.pm.selectProblem(this.selectedProblem);
+    alert(this.selectedProblem.key);
+    localStorage.setItem('lastSelectedProblemKey', this.selectedProblem.name);
     
 
     let servicesMenu = new Array<ServiceDescriptor>();
@@ -313,18 +330,30 @@ export class ProblemWidgetComponent {
     this.servicesMenu = servicesMenu
     
     this.onProblemSelected.emit(this.selectedProblem)
+
+    const lastSelectedServiceKey = localStorage.getItem('lastSelectedServiceKey');
+    this.selectedService = this.servicesMenu.find(service => service.key === lastSelectedServiceKey);
   }
 
   async didSelectService() {
     console.log('didSelectService:', this.selectedService)
     if (!this.selectedService){return}
-    this.pm.selectService(this.selectedService)
+    this.pm.selectService(this.selectedService);
+    let select = "servizio selezionato: " + this.selectedService.key;
+    localStorage.setItem('lastSelectedServiceKey', this.selectedService.key);
     this.selectedArgs = this.selectedService.args
     this.selectedFiles = this.selectedService.files
     console.log('didSelectService:selectedArgs:', this.selectedArgs)
     this.onServiceSelected.emit(this.selectedService)   
 
     this.refreshFilePathList()
+  }
+
+  async onSelectProblem(problemKey: string) {
+    // Trova il problema corrispondente
+    this.selectedProblem = this.problemsMenu.find(problem => problem.key === problemKey);
+    localStorage.setItem('lastSelectedProblemKey', problemKey);
+    this.reloadProblemList();
   }
 
   async apiDownloadAttachment() {

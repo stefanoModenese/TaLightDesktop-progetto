@@ -6,6 +6,8 @@ import { ProblemManagerService } from 'src/app/services/problem-manager-service/
 import { AppTheme, ThemeService } from 'src/app/services/theme-service/theme.service';
 import { ProjectManagerService } from 'src/app/services/project-manager-service/project-manager.service';
 import { Output, EventEmitter } from '@angular/core';
+import { ProjectEnvironment } from 'src/app/services/project-manager-service/project-manager.types';
+import { FileExplorerWidgetComponent } from '../../code-editor/file-explorer-widget/file-explorer-widget.component';
 
 
 @Component({
@@ -20,6 +22,7 @@ export class TopbarWidgetComponent implements OnInit {
   @ViewChild("messageBox") public messageBox?: ElementRef;
   @Output() newEventItem = new EventEmitter<string>;
   @ViewChild("myLabel") public myLabel?: ElementRef;
+  @ViewChild("fileExplorer") public fileExplorer!: FileExplorerWidgetComponent;
   
 
   url;
@@ -33,6 +36,7 @@ export class TopbarWidgetComponent implements OnInit {
   subOnLabel
   currentNotification?:NotificationMessage
   label:string = '';
+  //CurrentEnvironment: ProjectEnvironment | null;
 
   constructor( public readonly themeService: ThemeService, 
                public api: ApiService,
@@ -50,7 +54,6 @@ export class TopbarWidgetComponent implements OnInit {
     this.subOnNotify = this.nm.onNotification.subscribe((msg:NotificationMessage): void=>{this.showNotification(msg)})
     //this.pj.onProjectChanged.subscribe((name) => {});
     this.subOnLabel = this.pj.onLabelChanged.subscribe((nome)=>{this.label = nome});
-
   }
 
   ngOnInit(): void {
@@ -187,7 +190,26 @@ export class TopbarWidgetComponent implements OnInit {
     //alert('grazie per aver cliccato');
     const fakeProject = {};
     //this.pj.setCurrentProject(nome);
+
+    let CurrentEnvironment: ProjectEnvironment | null;
+
     this.pj.setLabel(nome);
+    CurrentEnvironment = this.pj.getCurrentProject();
+    CurrentEnvironment?.loadProject();
+    CurrentEnvironment?.config?.CONFIG_PATH;
+    var prova = 'il config path è: ' + CurrentEnvironment?.config?.CONFIG_PATH;
+    //alert(prova);
+
+    /*let configFile = this.fileExplorer.project?.config.projectFolder.files.find((file)=>{
+      return file.path == this.project?.config?.CONFIG_PATH
+    })
+    if(!configFile){return}
+    console.log("openSettings:configFile:",configFile)
+        
+    this.selectFile(configFile);*/
+
+    alert(this.fileExplorer.project?.config);
+
     //this.projectservice.setCurrentProject(nome);
   }
 
