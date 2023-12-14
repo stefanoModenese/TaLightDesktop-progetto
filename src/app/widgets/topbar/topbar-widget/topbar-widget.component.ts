@@ -54,6 +54,7 @@ export class TopbarWidgetComponent implements OnInit {
     this.subOnNotify = this.nm.onNotification.subscribe((msg:NotificationMessage): void=>{this.showNotification(msg)})
     //this.pj.onProjectChanged.subscribe((name) => {});
     this.subOnLabel = this.pj.onLabelChanged.subscribe((nome)=>{this.label = nome});
+    var come = 'stai';
   }
 
   ngOnInit(): void {
